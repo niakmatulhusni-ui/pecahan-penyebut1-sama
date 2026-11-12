@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Pecahan Seru - Kelas 3 SD</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Comic Sans MS', 'Baloo 2', 'Trebuchet MS', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #FFE5B4 0%, #B5EAD7 50%, #C7CEEA 100%);
+    min-height: 100vh; padding: 20px; color: #2D3047;
+  }
+  .screen { display: none; max-width: 850px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .card {
+    background: #fff; border-radius: 24px; padding: 30px 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12); border: 4px solid #FFD166;
+  }
+  h1 { color: #FF6B6B; text-align: center; font-size: 2.4rem; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #555; font-size: 1.1rem; margin-bottom: 22px; }
+  .mascot { text-align: center; font-size: 4rem; margin-bottom: 10px; }
+
+  /* Identity Form */
+  .form-group { margin-bottom: 18px; }
+  label { display: block; font-weight: bold; margin-bottom: 6px; color: #2D3047; font-size: 1.15rem; }
+  input[type="text"] {
+    width: 100%; padding: 14px 16px; font-size: 1.15rem; border: 3px solid #C7CEEA;
+    border-radius: 14px; outline: none; transition: border 0.2s;
+  }
+  input[type="text"]:focus { border-color: #FF8C42; }
+  .btn {
+    display: inline-block; padding: 14px 28px; font-size: 1.2rem; font-weight: bold;
+    border: none; border-radius: 16px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
+    color: #fff; box-shadow: 0 5px 0 rgba(0,0,0,0.15);
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+  .btn-primary { background: #FF8C42; }
+  .btn-success { background: #6BCB77; }
+  .btn-info { background: #4D96FF; }
+  .btn-danger { background: #FF6B6B; }
+  .btn-secondary { background: #B0B0B0; }
+  .btn:disabled { background: #D0D0D0; cursor: not-allowed; box-shadow: none; transform: none; }
+  .btn-center { display: flex; justify-content: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+  /* Quiz Screen */
+  .quiz-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+  .student-info { background: #FFF3B0; padding: 10px 18px; border-radius: 14px; font-weight: bold; color: #5A4500; }
+  .progress-wrap { width: 100%; margin-bottom: 20px; }
+  .progress-bar { width: 100%; height: 22px; background: #E0E0E0; border-radius: 12px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #6BCB77, #4D96FF); transition: width 0.4s; }
+  .progress-text { text-align: center; margin-top: 6px; font-weight: bold; color: #555; }
+
+  .question-box { background: #F0F8FF; border-radius: 18px; padding: 24px; border: 3px dashed #4D96FF; margin-bottom: 18px; }
+  .q-number { display: inline-block; background: #FF8C42; color: #fff; font-weight: bold; padding: 4px 16px; border-radius: 20px; margin-bottom: 12px; }
+  .q-prompt { font-size: 1.35rem; line-height: 1.5; margin-bottom: 16px; }
+  .q-display { font-size: 2.2rem; text-align: center; font-weight: bold; margin: 20px 0; color: #2D3047; }
+
+  /* Symbol buttons */
+  .symbol-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .symbol-btn {
+    width: 90px; height: 90px; font-size: 2.8rem; font-weight: bold;
+    border: 4px solid #C7CEEA; border-radius: 18px; background: #fff; cursor: pointer;
+    transition: all 0.15s; color: #2D3047;
+  }
+  .symbol-btn:hover { background: #FFF3B0; transform: scale(1.05); }
+  .symbol-btn.selected { background: #FFD166; border-color: #FF8C42; transform: scale(1.05); }
+
+  /* Multiple choice */
+  .options { display: grid; gap: 12px; }
+  .option-btn {
+    padding: 16px 20px; font-size: 1.2rem; border: 3px solid #C7CEEA; border-radius: 14px;
+    background: #fff; cursor: pointer; transition: all 0.15s; text-align: left;
+  }
+  .option-btn:hover { background: #E3F2FD; transform: translateX(4px); }
+  .option-btn.selected { background: #FFD166; border-color: #FF8C42; }
+
+  /* Ordering */
+  .order-list { display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 0 auto; }
+  .order-item {
+    display: flex; align-items: center; justify-content: space-between; padding: 14px 18px;
+    background: #fff; border: 3px solid #4D96FF; border-radius: 14px; font-size: 1.4rem; font-weight: bold;
+  }
+  .order-item .rank { background: #FFD166; color: #5A4500; width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .order-controls { display: flex; gap: 6px; }
+  .order-controls button {
+    width: 40px; height: 40px; border: none; border-radius: 10px; cursor: pointer;
+    font-size: 1.2rem; font-weight: bold; color: #fff;
+  }
+  .order-controls .up { background: #6BCB77; }
+  .order-controls .down { background: #FF8C42; }
+  .order-controls button:disabled { background: #DDD; cursor: not-allowed; }
+
+  /* Circle SVG */
+  .circle-row { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; margin: 18px 0; }
+  .circle-block { text-align: center; }
+  .circle-block .label { font-size: 1.3rem; font-weight: bold; margin-top: 8px; }
+  .circle-block.clickable svg { cursor: pointer; }
+  .circle-block.clickable svg path:hover { opacity: 0.8; }
+
+  /* Feedback */
+  .feedback {
+    margin-top: 18px; padding: 18px; border-radius: 14px; font-size: 1.15rem; line-height: 1.5;
+    display: none; animation: pop 0.3s;
+  }
+  @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  .feedback.correct { background: #D4EDDA; border: 3px solid #6BCB77; color: #155724; }
+  .feedback.wrong { background: #F8D7DA; border: 3px solid #FF6B6B; color: #721C24; }
+  .feedback.show { display: block; }
+  .feedback .emoji { font-size: 2rem; }
+  .feedback .attempts { font-size: 1rem; margin-top: 8px; font-style: italic; }
+
+  /* Nav buttons */
+  .nav-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+  .nav-row .btn { min-width: 140px; text-align: center; }
+
+  /* Results */
+  .results-emoji { text-align: center; font-size: 5rem; margin-bottom: 12px; }
+  .results-score { text-align: center; font-size: 2.4rem; font-weight: bold; color: #FF8C42; margin-bottom: 8px; }
+  .results-stars { text-align: center; font-size: 2.6rem; margin-bottom: 20px; }
+  .results-msg { text-align: center; font-size: 1.2rem; margin-bottom: 20px; color: #555; }
+  .results-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  .results-table th, .results-table td { padding: 10px 12px; border: 2px solid #FFD166; text-align: center; font-size: 1rem; }
+  .results-table th { background: #FFD166; color: #5A4500; }
+  .results-table td.ok { background: #D4EDDA; }
+  .results-table td.retry { background: #FFF3CD; }
+  .results-table td.help { background: #F8D7DA; }
+
+  /* Animations */
+  @keyframes shake { 0%,100%{transform:translateX(0);} 20%,60%{transform:translateX(-8px);} 40%,80%{transform:translateX(8px);} }
+  @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+  .shake { animation: shake 0.4s; }
+  .bounce { animation: bounce 0.5s; }
+
+  /* Confetti */
+  .confetti { position: fixed; width: 12px; height: 12px; pointer-events: none; z-index: 9999; }
+
+  /* Helper text */
+  .hint { background: #FFF3B0; padding: 10px 14px; border-radius: 10px; font-size: 1rem; color: #5A4500; margin-top: 10px; }
+  .multi-input { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .multi-input input { width: 110px; text-align: center; }
+  .small-note { text-align: center; color: #777; font-size: 0.95rem; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<!-- ============== WELCOME SCREEN ============== -->
+<div id="welcomeScreen" class="screen active">
+  <div class="card">
+    <div class="mascot">🍉➕➗🎯</div>
+    <h1>Kuis Pecahan Seru!</h1>
+    <p class="subtitle">Petualangan Matematika untuk Siswa Kelas 3 SD 🌟</p>
+    <div style="background:#FFF3B0;padding:14px;border-radius:12px;margin-bottom:20px;border:2px dashed #FF8C42;">
+      <p style="font-size:1.05rem;line-height:1.6;">
+        <strong>📚 Halo, jagoan pecahan!</strong> Yuk, kita main dan belajar bersama.
+        Ada <strong>15 soal</strong> seru dengan banyak cara menjawab: pilih simbol, urutkan, ketik sendiri,
+        warnai lingkaran, dan banyak lagi! Setiap soal boleh <strong>diulang 1 kali</strong> kalau salah.
+        Kerjakan satu per satu ya — kamu <strong>tidak bisa lompat</strong> ke soal berikutnya kalau belum selesai. Semangat! 💪
+      </p>
+    </div>
+    <div class="form-group">
+      <label for="studentName">✏️ Nama Lengkap</label>
+      <input type="text" id="studentName" placeholder="Tulis namamu di sini..." autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label for="studentClass">🎒 Kelas</label>
+      <input type="text" id="studentClass" placeholder="Contoh: 3A" autocomplete="off">
+    </div>
+    <div class="btn-center">
+      <button class="btn btn-primary" onclick="startQuiz()">🚀 Mulai Kuis!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== QUIZ SCREEN ============== -->
+<div id="quizScreen" class="screen">
+  <div class="card">
+    <div class="quiz-header">
+      <div class="student-info" id="studentInfo">Nama - Kelas</div>
+      <div class="student-info" id="scoreInfo" style="background:#D4EDDA;color:#155724;">⭐ Benar: 0</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">Soal 0 dari 15</div>
+    </div>
+
+    <div class="question-box" id="questionBox"></div>
+
+    <div class="feedback" id="feedback"></div>
+
+    <div class="nav-row">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>⬅️ Sebelumnya</button>
+      <button class="btn btn-info" id="retryBtn" onclick="retryQuestion()" style="display:none;">🔄 Coba Lagi</button>
+      <button class="btn btn-success" id="nextBtn" onclick="nextQuestion()" disabled>Berikutnya ➡️</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== RESULTS SCREEN ============== -->
+<div id="resultsScreen" class="screen">
+  <div class="card">
+    <div class="results-emoji" id="resultsEmoji">🎉</div>
+    <div class="results-score" id="resultsScore"></div>
+    <div class="results-stars" id="resultsStars"></div>
+    <div class="results-msg" id="resultsMsg"></div>
+    <table class="results-table" id="resultsTable"></table>
+    <div class="btn-center">
+      <button class="btn btn-primary" onclick="restartQuiz()">🔄 Kerjakan Ulang</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===================== QUESTION BANK ===================== */
+const questions = [
+  {
+    id: 1,
+    type: 'symbol',
+    prompt: 'Bandingkan dengan simbol &lt; atau &gt;. Pilih simbol yang tepat!',
+    left: '2/7', right: '5/7',
+    answer: '<',
+    explanation: 'Penyebut sama (7). Untuk pecahan berpenyebut sama, yang pembilangnya lebih kecil nilainya lebih kecil. Karena 2 &lt; 5, maka 2/7 &lt; 5/7.'
+  },
+  {
+    id: 2,
+    type: 'order',
+    prompt: 'Urutkan pecahan berikut dari yang <strong>terkecil</strong> ke <strong>terbesar</strong>. Gunakan tombol ⬆️ dan ⬇️ untuk mengatur urutan!',
+    items: ['4/9', '1/9', '7/9'],
+    answer: ['1/9', '4/9', '7/9'],
+    topHint: 'Posisi paling atas = pecahan terkecil.',
+    explanation: 'Penyebut sama (9). Urutkan pembilangnya dari kecil ke besar: 1, 4, 7. Jadi urutannya 1/9, 4/9, 7/9.'
+  },
+  {
+    id: 3,
+    type: 'fraction-input',
+    prompt: 'Ibu membagi semangka menjadi <strong>10 bagian</strong> sama besar. Kakak makan <strong>3 bagian</strong> dan Adik makan 2 bagian. Tuliskan <strong>pecahan</strong> bagian semangka yang dimakan Kakak.',
+    placeholder: 'contoh: 1/2',
+    answer: ['3/10'],
+    explanation: 'Kakak makan 3 bagian dari 10 bagian semangka. Jadi pecahannya adalah 3/10 (pembilang 3, penyebut 10).'
+  },
+  {
+    id: 4,
+    type: 'circle-shade',
+    prompt: 'Manakah yang <strong>lebih kecil</strong>: 1/5 atau 1/3? <br>🔒 Pertama, klik pada lingkaran untuk mewarnai 1 bagian di setiap lingkaran. Lalu, pilih pecahan yang lebih kecil!',
+    circles: [{parts:5, shade:1, label:'1/5'}, {parts:3, shade:1, label:'1/3'}],
+    answer: '1/5',
+    explanation: 'Untuk pecahan dengan pembilang 1, penyebut yang lebih besar berarti pecahan yang lebih kecil (karena dibagi menjadi lebih banyak bagian). 5 &gt; 3, jadi 1/5 &lt; 1/3. Bagian yang lebih kecil adalah 1/5.'
+  },
+  {
+    id: 5,
+    type: 'order-names',
+    prompt: 'Andi memiliki <strong>5/12</strong> bagian cokelat, Budi <strong>3/12</strong>, dan Cici <strong>7/12</strong>. Urutkan nama anak dari yang memiliki cokelat <strong>paling banyak</strong> (terbesar) ke <strong>paling sedikit</strong> (terkecil)!',
+    items: ['Andi (5/12)', 'Budi (3/12)', 'Cici (7/12)'],
+    answer: ['Cici (7/12)', 'Andi (5/12)', 'Budi (3/12)'],
+    topHint: 'Posisi paling atas = cokelat paling banyak (terbesar).',
+    explanation: 'Penyebut sama (12). Bandingkan pembilangnya: 7 &gt; 5 &gt; 3. Jadi urutan dari paling banyak: Cici, Andi, Budi.'
+  },
+  {
+    id: 6,
+    type: 'multi-fraction',
+    prompt: 'Tuliskan <strong>tiga pecahan</strong> yang nilainya <strong>lebih besar dari 2/6</strong>, tetapi penyebutnya <strong>tetap 6</strong>. Isi di 3 kotak di bawah!',
+    count: 3,
+    answer: ['3/6', '4/6', '5/6'],
+    extraAccept: ['6/6'],
+    placeholder: 'x/6',
+    explanation: 'Penyebut harus 6. Pembilang harus lebih besar dari 2. Berarti pembilang yang mungkin: 3, 4, 5 (atau 6). Jadi tiga pecahannya: 3/6, 4/6, 5/6.'
+  },
+  {
+    id: 7,
+    type: 'circle-choice',
+    prompt: 'Manakah pecahan yang <strong>lebih besar</strong>: 1/4 atau 1/6? Perhatikan gambar lingkaran lalu pilih jawaban yang benar!',
+    circles: [{parts:4, shade:1, label:'1/4'}, {parts:6, shade:1, label:'1/6'}],
+    options: ['1/4 lebih besar', '1/6 lebih besar', 'Keduanya sama besar'],
+    answer: '1/4 lebih besar',
+    explanation: 'Pembilang sama (1). Penyebut lebih kecil = pecahan lebih besar (dibagi lebih sedikit, tiap bagian lebih besar). Karena 4 &lt; 6, maka 1/4 &gt; 1/6. Jadi 1/4 lebih besar.'
+  },
+  {
+    id: 8,
+    type: 'symbol',
+    prompt: 'Bandingkan dengan simbol &lt; atau &gt;. Pilih simbol yang tepat!',
+    left: '3/8', right: '5/8',
+    answer: '<',
+    explanation: 'Penyebut sama (8). Karena 3 &lt; 5, maka 3/8 &lt; 5/8.'
+  },
+  {
+    id: 9,
+    type: 'choice',
+    prompt: 'Andi makan <strong>2/8</strong> bagian pizza, Budi makan <strong>3/8</strong> bagian. Siapa yang makan pizza <strong>lebih banyak</strong>?',
+    options: ['Andi', 'Budi', 'Sama banyak'],
+    answer: 'Budi',
+    explanation: 'Penyebut sama (8). 3 &gt; 2, jadi 3/8 &gt; 2/8. Budi makan lebih banyak pizza.'
+  },
+  {
+    id: 10,
+    type: 'order',
+    prompt: 'Urutkan pecahan berikut dari yang <strong>terkecil</strong> ke <strong>terbesar</strong>. Gunakan tombol ⬆️ dan ⬇️!',
+    items: ['1/2', '1/5', '1/3'],
+    answer: ['1/5', '1/3', '1/2'],
+    topHint: 'Posisi paling atas = pecahan terkecil.',
+    explanation: 'Pembilang semua 1. Untuk pembilang 1, penyebut lebih besar = pecahan lebih kecil. Urutkan penyebut dari besar ke kecil: 5, 3, 2. Jadi pecahan dari terkecil: 1/5, 1/3, 1/2.'
+  },
+  {
+    id: 11,
+    type: 'fraction-input',
+    prompt: 'Sebuah roti dipotong menjadi <strong>6 bagian</strong> sama besar. Ayah makan <strong>1/6</strong>, Ibu makan <strong>2/6</strong>, dan Anak makan <strong>2/6</strong>. Tuliskan <strong>pecahan bagian roti yang tersisa</strong>!',
+    placeholder: 'contoh: 2/3',
+    answer: ['1/6'],
+    explanation: 'Total yang dimakan: 1/6 + 2/6 + 2/6 = 5/6. Roti utuh = 6/6. Sisa = 6/6 − 5/6 = 1/6. Jadi tersisa 1/6 bagian.'
+  },
+  {
+    id: 12,
+    type: 'symbol',
+    prompt: 'Bandingkan dengan simbol &lt; atau &gt;. Pilih simbol yang tepat!',
+    left: '4/10', right: '7/10',
+    answer: '<',
+    explanation: 'Penyebut sama (10). Karena 4 &lt; 7, maka 4/10 &lt; 7/10.'
+  },
+  {
+    id: 13,
+    type: 'choice',
+    prompt: 'Pilih pecahan yang <strong>terbesar</strong> di antara pecahan berikut!',
+    options: ['2/5', '4/5', '1/5', '3/5'],
+    answer: '4/5',
+    explanation: 'Penyebut semua sama (5). Bandingkan pembilang: 1, 2, 3, 4. Yang terbesar pembilangnya adalah 4, jadi pecahan terbesar adalah 4/5.'
+  },
+  {
+    id: 14,
+    type: 'circle-choice',
+    prompt: 'Tinta memiliki <strong>1/4 kg</strong> gula, Tanti memiliki <strong>1/3 kg</strong> gula. Lihat gambar lingkaran. Siapa yang punya gula <strong>lebih banyak</strong>?',
+    circles: [{parts:4, shade:1, label:'1/4 (Tinta)'}, {parts:3, shade:1, label:'1/3 (Tanti)'}],
+    options: ['Tinta (1/4)', 'Tanti (1/3)', 'Sama banyak'],
+    answer: 'Tanti (1/3)',
+    explanation: 'Pembilang sama (1). Penyebut lebih kecil = pecahan lebih besar. Karena 3 &lt; 4, maka 1/3 &gt; 1/4. Jadi Tanti punya gula lebih banyak.'
+  },
+  {
+    id: 15,
+    type: 'fraction-input',
+    prompt: 'Doni membuat <strong>8 cupcake</strong>. <strong>3</strong> di antaranya berwarna pink. Tuliskan <strong>pecahan</strong> cupcake yang berwarna pink!',
+    placeholder: 'contoh: 1/4',
+    answer: ['3/8'],
+    explanation: 'Cupcake pink ada 3 dari total 8 cupcake. Jadi pecahan cupcake berwarna pink adalah 3/8.'
+  }
+];
+
+/* ===================== STATE ===================== */
+let state = {
+  current: 0,
+  attempts: 0,          // attempts on current question (0, 1 = first try, 2 = retry)
+  answered: false,      // has submitted an answer this attempt
+  locked: false,        // true after final outcome (correct OR used retry)
+  correctFirstTry: [],  // per-question outcome: 'ok' | 'retry' | 'help'
+  selections: {},       // per-question user selections (for symbol/choice)
+  orderState: {},       // per-question current ordering
+  shadeState: {},       // per-question circle shading (for circle-shade)
+  symbolChoice: null,
+  choiceChoice: null
+};
+
+/* ===================== HELPERS ===================== */
+function normalizeFraction(s) {
+  if (!s) return '';
+  s = String(s).trim().replace(/\s+/g, '');
+  s = s.replace(/[，]/g, ',');
+  // accept forms like 3/10, 3:10, 3 per 10
+  s = s.replace(/[÷:]/g, '/');
+  return s;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateProgress() {
+  const pct = (state.current / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = 'Soal ' + (state.current + 1) + ' dari ' + questions.length;
+  const okCount = state.correctFirstTry.filter(x => x === 'ok').length;
+  document.getElementById('scoreInfo').textContent = '⭐ Benar: ' + okCount;
+}
+
+function showFeedback(type, html, showAttemptsNote) {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback ' + type + ' show';
+  let content = '';
+  if (type === 'correct') {
+    content = '<span class="emoji">🎉</span> <strong>Hebat!</strong> ';
+    const praises = ['Jawabanmu benar! Kamu pintar! 🌟','Tepat sekali! Lanjutkan! 💪','Keren! Kamu jagoan pecahan! 🏆','Mantap! Jawabanmu pas! 👏','Pintar sekali! ⭐'];
+    content += praises[Math.floor(Math.random() * praises.length)];
+  } else {
+    content = '<span class="emoji">🤔</span> <strong>Belum tepat.</strong> ';
+    const encouragements = ['Coba lihat lagi ya, kamu pasti bisa! 💪','Hampir benar! Yuk coba sekali lagi! 🌟','Jangan menyerah, coba pikirkan lagi! 🤗','Sabar ya, hayati dulu soalnya! 🧠'];
+    content += encouragements[Math.floor(Math.random() * encouragements.length)];
+  }
+  if (html) content += '<br><br>' + html;
+  if (showAttemptsNote) content += '<div class="attempts">' + showAttemptsNote + '</div>';
+  fb.innerHTML = content;
+  // animation
+  if (type === 'correct') {
+    document.getElementById('questionBox').classList.add('bounce');
+    setTimeout(() => document.getElementById('questionBox').classList.remove('bounce'), 500);
+    burstConfetti();
+  } else {
+    document.getElementById('questionBox').classList.add('shake');
+    setTimeout(() => document.getElementById('questionBox').classList.remove('shake'), 400);
+  }
+}
+
+function hideFeedback() {
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+}
+
+function burstConfetti() {
+  const colors = ['#FF6B6B','#FFD166','#6BCB77','#4D96FF','#FF8C42','#C77DFF'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.left = (Math.random()*100) + 'vw';
+    c.style.top = '-20px';
+    c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    c.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+    document.body.appendChild(c);
+    const dur = 2000 + Math.random()*1500;
+    const drift = (Math.random()-0.5)*200;
+    c.animate([
+      { transform: c.style.transform, top: '-20px', opacity: 1 },
+      { transform: c.style.transform + ' translate(' + drift + 'px, 0)', top: '100vh', opacity: 0.3 }
+    ], { duration: dur, easing: 'ease-in' });
+    setTimeout(() => c.remove(), dur);
+  }
+}
+
+/* ===================== START ===================== */
+function startQuiz() {
+  const name = document.getElementById('studentName').value.trim();
+  const cls = document.getElementById('studentClass').value.trim();
+  if (!name) { alert('✏️ Yuk, tulis namamu dulu!'); document.getElementById('studentName').focus(); return; }
+  if (!cls) { alert('🎒 Yuk, tulis kelasmu dulu!'); document.getElementById('studentClass').focus(); return; }
+  state.studentName = name;
+  state.studentClass = cls;
+  document.getElementById('studentInfo').textContent = '👤 ' + name + ' — Kelas ' + cls;
+  state.current = 0;
+  state.correctFirstTry = [];
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+/* ===================== CIRCLE SVG ===================== */
+function circleSVG(parts, shadedArr, clickable, qid) {
+  const size = 160;
+  const cx = size/2, cy = size/2, r = size/2 - 6;
+  let svg = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">';
+  for (let i = 0; i < parts; i++) {
+    const a0 = (i * 2 * Math.PI / parts) - Math.PI/2;
+    const a1 = ((i+1) * 2 * Math.PI / parts) - Math.PI/2;
+    const x1 = cx + r * Math.cos(a0);
+    const y1 = cy + r * Math.sin(a0);
+    const x2 = cx + r * Math.cos(a1);
+    const y2 = cy + r * Math.sin(a1);
+    const largeArc = ((a1 - a0) > Math.PI) ? 1 : 0;
+    const isShaded = shadedArr[i] === 1;
+    const fill = isShaded ? '#FF6B9D' : '#FFF8E1';
+    const onclick = clickable ? ' onclick="toggleShade(' + qid + ',' + i + ')"' : '';
+    svg += '<path d="M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + fill + '" stroke="#333" stroke-width="2"' + onclick + ' style="cursor:pointer;"/>';
+  }
+  svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#333" stroke-width="2.5"/></svg>';
+  return svg;
+}
+
+function toggleShade(qid, idx) {
+  if (state.locked || state.answered) return;
+  if (!state.shadeState[qid]) state.shadeState[qid] = {};
+  const q = questions.find(x => x.id === qid);
+  // init if needed
+  q.circles.forEach((c, ci) => {
+    if (!state.shadeState[qid][ci]) {
+      state.shadeState[qid][ci] = new Array(c.parts).fill(0);
+    }
+  });
+  // find which circle this idx belongs to — we re-render whole so idx is global across circles? Let's pass (circleIndex, partIndex) instead.
+}
+
+// Better: toggle by (qid, circleIdx, partIdx)
+function toggleShadePart(qid, ci, pi) {
+  if (state.locked || state.answered) return;
+  if (!state.shadeState[qid]) state.shadeState[qid] = {};
+  const q = questions.find(x => x.id === qid);
+  if (!state.shadeState[qid][ci]) {
+    state.shadeState[qid][ci] = new Array(q.circles[ci].parts).fill(0);
+  }
+  state.shadeState[qid][ci][pi] = state.shadeState[qid][ci][pi] ? 0 : 1;
+  renderCircleShadeRow(qid);
+}
+
+function renderCircleShadeRow(qid) {
+  const q = questions.find(x => x.id === qid);
+  const container = document.getElementById('circleShadeRow-' + qid);
+  if (!container) return;
+  let html = '<div class="circle-row">';
+  q.circles.forEach((c, ci) => {
+    if (!state.shadeState[qid]) state.shadeState[qid] = {};
+    if (!state.shadeState[qid][ci]) state.shadeState[qid][ci] = new Array(c.parts).fill(0);
+    // build SVG with per-part onclick
+    const size = 160;
+    const cx = size/2, cy = size/2, r = size/2 - 6;
+    let svg = '<svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">';
+    for (let i = 0; i < c.parts; i++) {
+      const a0 = (i * 2 * Math.PI / c.parts) - Math.PI/2;
+      const a1 = ((i+1) * 2 * Math.PI / c.parts) - Math.PI/2;
+      const x1 = cx + r * Math.cos(a0);
+      const y1 = cy + r * Math.sin(a0);
+      const x2 = cx + r * Math.cos(a1);
+      const y2 = cy + r * Math.sin(a1);
+      const largeArc = ((a1 - a0) > Math.PI) ? 1 : 0;
+      const isShaded = state.shadeState[qid][ci][i] === 1;
+      const fill = isShaded ? '#FF6B9D' : '#FFF8E1';
+      svg += '<path d="M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + x2 + ' ' + y2 + ' Z" fill="' + fill + '" stroke="#333" stroke-width="2" onclick="toggleShadePart(' + qid + ',' + ci + ',' + i + ')" style="cursor:pointer;"/>';
+    }
+    svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="#333" stroke-width="2.5"/></svg>';
+    const shadedCount = state.shadeState[qid][ci].reduce((a,b)=>a+b,0);
+    html += '<div class="circle-block clickable"><div>' + svg + '</div><div class="label">' + c.label + ' <span style="font-size:1rem;color:#777;">(' + shadedCount + '/' + c.parts + ' terisi)</span></div></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+/* ===================== RENDER QUESTION ===================== */
+function renderQuestion() {
+  const q = questions[state.current];
+  state.attempts = 0;
+  state.answered = false;
+  state.locked = false;
+  state.symbolChoice = null;
+  state.choiceChoice = null;
+  hideFeedback();
+  document.getElementById('retryBtn').style.display = 'none';
+  document.getElementById('nextBtn').disabled = true;
+  document.getElementById('prevBtn').disabled = (state.current === 0);
+  updateProgress();
+
+  const box = document.getElementById('questionBox');
+  let html = '<span class="q-number">Soal ' + (state.current+1) + ' / ' + questions.length + '</span>';
+  html += '<div class="q-prompt">' + q.prompt + '</div>';
+
+  if (q.type === 'symbol') {
+    html += '<div class="q-display">' + q.left + ' <span style="color:#FF8C42;">?</span> ' + q.right + '</div>';
+    html += '<div class="symbol-row">';
+    ['<','>','='].forEach(sym => {
+      const label = sym === '<' ? '&lt;' : (sym === '>' ? '&gt;' : '=');
+      html += '<button class="symbol-btn" onclick="selectSymbol(\'' + sym + '\')" id="sym-' + sym + '">' + label + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitSymbol()">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'order' || q.type === 'order-names') {
+    // init order state if not present
+    if (!state.orderState[q.id]) {
+      // shuffled copy
+      state.orderState[q.id] = q.items.slice();
+      // shuffle once
+      for (let i = state.orderState[q.id].length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [state.orderState[q.id][i], state.orderState[q.id][j]] = [state.orderState[q.id][j], state.orderState[q.id][i]];
+      }
+    }
+    html += '<div id="orderList-' + q.id + '"></div>';
+    html += '<div class="small-note">💡 Atur urutan dengan menekan tombol panah. ' + (q.topHint || 'Posisi paling atas = urutan paling awal.') + '</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitOrder(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'fraction-input') {
+    html += '<div class="btn-center"><input type="text" id="fracInput-' + q.id + '" placeholder="' + (q.placeholder||'contoh: 1/2') + '" style="width:200px;text-align:center;font-size:1.6rem;padding:12px;border:3px solid #4D96FF;border-radius:14px;" onkeyup="if(event.key===\'Enter\')submitFraction(' + q.id + ')"></div>';
+    html += '<div class="small-note">💡 Tulis pecahan dengan tanda / (garis miring), contoh: <strong>1/2</strong>. Bukan contoh jawaban soal ini ya!</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitFraction(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'multi-fraction') {
+    html += '<div class="multi-input">';
+    for (let i = 0; i < q.count; i++) {
+      html += '<input type="text" id="multiInput-' + q.id + '-' + i + '" placeholder="' + (q.placeholder||'x/6') + '" style="font-size:1.4rem;padding:12px;border:3px solid #4D96FF;border-radius:14px;" onkeyup="if(event.key===\'Enter\')submitMulti(' + q.id + ')">';
+    }
+    html += '</div>';
+    html += '<div class="small-note">💡 Tulis ' + q.count + ' pecahan berbeda, masing-masing dengan penyebut 6.</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitMulti(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'circle-shade') {
+    html += '<div id="circleShadeRow-' + q.id + '"></div>';
+    html += '<div class="small-note">🎨 Klik irisan lingkaran untuk mewarnai. Warna 1 bagian pada masing-masing lingkaran!</div>';
+    html += '<div style="margin-top:16px;font-size:1.2rem;font-weight:bold;text-align:center;">Lalu, pecahan mana yang <strong>lebih kecil</strong>?</div>';
+    html += '<div class="btn-center">';
+    q.circles.forEach(c => {
+      html += '<button class="btn btn-info" onclick="selectCircleChoice(\'' + q.id + '\',\'' + c.label + '\')" id="circChoice-' + c.label.replace(/[^a-zA-Z0-9]/g,'') + '">' + c.label + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitCircleShade(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'circle-choice') {
+    html += '<div class="circle-row">';
+    q.circles.forEach(c => {
+      html += '<div class="circle-block">' + circleSVG(c.parts, (function(){const a=new Array(c.parts).fill(0);for(let i=0;i<c.shade;i++)a[i]=1;return a;})(), false, q.id) + '<div class="label">' + c.label + '</div></div>';
+    });
+    html += '</div>';
+    html += '<div class="options">';
+    q.options.forEach(opt => {
+      html += '<button class="option-btn" onclick="selectChoice(\'' + q.id + '\',\'' + opt.replace(/'/g,"\\'") + '\')" id="opt-' + opt.replace(/[^a-zA-Z0-9]/g,'') + '">' + opt + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitChoice(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+  else if (q.type === 'choice') {
+    html += '<div class="options">';
+    q.options.forEach(opt => {
+      html += '<button class="option-btn" onclick="selectChoice(\'' + q.id + '\',\'' + opt.replace(/'/g,"\\'") + '\')" id="opt-' + opt.replace(/[^a-zA-Z0-9]/g,'') + '">' + opt + '</button>';
+    });
+    html += '</div>';
+    html += '<div class="btn-center"><button class="btn btn-primary" onclick="submitChoice(' + q.id + ')">✅ Periksa Jawaban</button></div>';
+  }
+
+  box.innerHTML = html;
+
+  // post-render tasks
+  if (q.type === 'order' || q.type === 'order-names') {
+    renderOrderList(q.id);
+  }
+  if (q.type === 'circle-shade') {
+    renderCircleShadeRow(q.id);
+  }
+  // scroll to top of box
+  box.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ===================== ORDER LIST ===================== */
+function renderOrderList(qid) {
+  const q = questions.find(x => x.id === qid);
+  const arr = state.orderState[qid];
+  const container = document.getElementById('orderList-' + qid);
+  let html = '<div class="order-list">';
+  arr.forEach((item, i) => {
+    html += '<div class="order-item"><span class="rank">' + (i+1) + '</span><span>' + item + '</span><span class="order-controls">';
+    html += '<button class="up" onclick="moveOrder(' + qid + ',' + i + ',-1)" ' + (i===0?'disabled':'') + '>⬆️</button>';
+    html += '<button class="down" onclick="moveOrder(' + qid + ',' + i + ',1)" ' + (i===arr.length-1?'disabled':'') + '>⬇️</button>';
+    html += '</span></div>';
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function moveOrder(qid, i, dir) {
+  if (state.locked || state.answered) return;
+  const arr = state.orderState[qid];
+  const j = i + dir;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  renderOrderList(qid);
+}
+
+/* ===================== ANSWER HANDLERS ===================== */
+function selectSymbol(sym) {
+  if (state.locked || state.answered) return;
+  state.symbolChoice = sym;
+  ['<','>','='].forEach(s => {
+    const el = document.getElementById('sym-' + s);
+    if (el) el.classList.toggle('selected', s === sym);
+  });
+}
+
+function submitSymbol() {
+  if (state.answered && !state.locked) return; // after wrong, must retry
+  if (state.locked) return;
+  if (!state.symbolChoice) { alert('Pilih salah satu simbol dulu ya! 👆'); return; }
+  const q = questions[state.current];
+  const correct = state.symbolChoice === q.answer;
+  handleOutcome(correct, q);
+}
+
+function selectChoice(qid, opt) {
+  if (state.locked || state.answered) return;
+  state.choiceChoice = opt;
+  const q = questions.find(x => x.id === qid);
+  q.options.forEach(o => {
+    const el = document.getElementById('opt-' + o.replace(/[^a-zA-Z0-9]/g,''));
+    if (el) el.classList.toggle('selected', o === opt);
+  });
+}
+
+function submitChoice(qid) {
+  if (state.locked) return;
+  if (!state.choiceChoice) { alert('Pilih salah satu jawaban dulu ya! 👆'); return; }
+  const q = questions.find(x => x.id === qid);
+  const correct = state.choiceChoice === q.answer;
+  handleOutcome(correct, q);
+}
+
+function selectCircleChoice(qid, label) {
+  if (state.locked || state.answered) return;
+  state.choiceChoice = label;
+  const q = questions.find(x => x.id === qid);
+  q.circles.forEach(c => {
+    const el = document.getElementById('circChoice-' + c.label.replace(/[^a-zA-Z0-9]/g,''));
+    if (el) el.classList.toggle('selected', c.label === label);
+  });
+  // also visually mark with selected style
+  q.circles.forEach(c => {
+    const el = document.getElementById('circChoice-' + c.label.replace(/[^a-zA-Z0-9]/g,''));
+    if (el) {
+      if (c.label === label) { el.style.background='#FFD166'; el.style.border='3px solid #FF8C42'; }
+      else { el.style.background='#4D96FF'; el.style.border='none'; }
+    }
+  });
+}
+
+function submitCircleShade(qid) {
+  if (state.locked) return;
+  const q = questions.find(x => x.id === qid);
+  // verify shading correct (each circle shadedArr sum === shade target)
+  let shadingOk = true;
+  q.circles.forEach((c, ci) => {
+    const sum = state.shadeState[qid][ci].reduce((a,b)=>a+b,0);
+    if (sum !== c.shade) shadingOk = false;
+  });
+  if (!shadingOk) {
+    showFeedback('wrong', '🎨 Pewarnaan lingkaran belum tepat. Setiap lingkaran harus diwarnai sesuai pecahannya (lihat label di bawah lingkaran).', 'Kamu belum kehilangan kesempatan ulang untuk pewarnaan — atur lagi lalu periksa.');
+    return; // doesn't count as attempt
+  }
+  if (!state.choiceChoice) { alert('Pilih pecahan mana yang lebih kecil! 👆'); return; }
+  const correct = state.choiceChoice === q.answer;
+  handleOutcome(correct, q);
+}
+
+function submitFraction(qid) {
+  if (state.locked) return;
+  const q = questions.find(x => x.id === qid);
+  const raw = document.getElementById('fracInput-' + qid).value;
+  const val = normalizeFraction(raw);
+  if (!val) { alert('Tulis jawabanmu dulu ya! ✏️'); return; }
+  const accepts = q.answer.map(normalizeFraction);
+  const correct = accepts.includes(val);
+  handleOutcome(correct, q);
+}
+
+function submitMulti(qid) {
+  if (state.locked) return;
+  const q = questions.find(x => x.id === qid);
+  const vals = [];
+  for (let i = 0; i < q.count; i++) {
+    const v = normalizeFraction(document.getElementById('multiInput-' + qid + '-' + i).value);
+    if (!v) { alert('Isi semua ' + q.count + ' kotak pecahan ya! ✏️'); return; }
+    vals.push(v);
+  }
+  // must all be distinct
+  const distinct = new Set(vals);
+  if (distinct.size !== vals.length) {
+    showFeedback('wrong', 'Tiga pecahan harus <strong>berbeda</strong> ya. Tulis pecahan yang berbeda-beda!', 'Pewarnaan kesempatan ulang tidak terpakai untuk ini — atur lagi lalu periksa.');
+    return;
+  }
+  // check each value is in accepts
+  const accepts = q.answer.concat(q.extraAccept||[]).map(normalizeFraction);
+  let allOk = true;
+  for (const v of vals) {
+    if (!accepts.includes(v)) allOk = false;
+  }
+  // also must have denominator 6
+  vals.forEach(v => {
+    const parts = v.split('/');
+    if (parts.length !== 2 || parts[1] !== '6') allOk = false;
+  });
+  handleOutcome(allOk, q);
+}
+
+function submitOrder(qid) {
+  if (state.locked) return;
+  const q = questions.find(x => x.id === qid);
+  const arr = state.orderState[qid];
+  const correct = arr.every((v, i) => v === q.answer[i]);
+  handleOutcome(correct, q);
+}
+
+/* ===================== OUTCOME / RETRY / LOCK ===================== */
+function handleOutcome(correct, q) {
+  state.answered = true;
+  if (correct) {
+    // record outcome
+    if (state.attempts === 0) {
+      state.correctFirstTry[state.current] = 'ok';
+    } else {
+      state.correctFirstTry[state.current] = 'retry';
+    }
+    showFeedback('correct', '<strong>Penjelasan:</strong> ' + q.explanation);
+    state.locked = true;
+    document.getElementById('nextBtn').disabled = false;
+    document.getElementById('retryBtn').style.display = 'none';
+    updateProgress();
+  } else {
+    // wrong
+    if (state.attempts === 0) {
+      // give retry chance
+      state.attempts = 1;
+      state.answered = false; // allow re-answering
+      state.correctFirstTry[state.current] = 'help'; // tentatively
+      showFeedback('wrong', '💡 <strong>Petunjuk:</strong> Coba periksa lagi soalnya dan jawab sekali lagi. Kamu punya <strong>1 kesempatan ulang</strong>.', 'Ini kesempatan ulang pertama (dan terakhir).');
+      document.getElementById('retryBtn').style.display = 'inline-block';
+      // do NOT lock; user can re-answer then click "Periksa" again
+      // reset selection highlight so they can re-pick
+      if (q.type === 'symbol') {
+        state.symbolChoice = null;
+        ['<','>','='].forEach(s => { const el = document.getElementById('sym-'+s); if(el) el.classList.remove('selected'); });
+      } else if (q.type === 'choice' || q.type === 'circle-choice') {
+        state.choiceChoice = null;
+        q.options.forEach(o => { const el = document.getElementById('opt-' + o.replace(/[^a-zA-Z0-9]/g,'')); if(el) el.classList.remove('selected'); });
+        if (q.type === 'circle-choice') {
+          q.circles.forEach(c => { const el = document.getElementById('circChoice-' + c.label.replace(/[^a-zA-Z0-9]/g,'')); if(el){el.style.background='#4D96FF';el.style.border='none';} });
+        }
+      } else if (q.type === 'circle-shade') {
+        state.choiceChoice = null;
+        q.circles.forEach(c => { const el = document.getElementById('circChoice-' + c.label.replace(/[^a-zA-Z0-9]/g,'')); if(el){el.style.background='#4D96FF';el.style.border='none';} });
+      }
+      updateProgress();
+    } else {
+      // second attempt also wrong -> reveal answer, lock, allow next
+      state.correctFirstTry[state.current] = 'help';
+      showFeedback('wrong', '😅 <strong>Belum tepat juga.</strong> Jangan sedih, ini bagian dari belajar! <br><br><strong>Jawaban yang benar:</strong><br>' + revealAnswer(q) + '<br><br><strong>Penjelasan:</strong> ' + q.explanation, 'Kesempatan ulang sudah terpakai. Yuk lanjut ke soal berikutnya!');
+      state.locked = true;
+      document.getElementById('nextBtn').disabled = false;
+      document.getElementById('retryBtn').style.display = 'none';
+      updateProgress();
+    }
+  }
+}
+
+function revealAnswer(q) {
+  if (q.type === 'symbol') return q.left + ' <strong style="color:#FF8C42;font-size:1.5rem;">' + (q.answer==='<'?'&lt;':(q.answer==='>'?'&gt;':'=')) + '</strong> ' + q.right;
+  if (q.type === 'order' || q.type === 'order-names') return q.answer.join(' ➡️ ');
+  if (q.type === 'fraction-input') return '<strong style="color:#FF8C42;font-size:1.4rem;">' + q.answer[0] + '</strong>';
+  if (q.type === 'multi-fraction') return '<strong style="color:#FF8C42;font-size:1.4rem;">' + q.answer.join(', ') + '</strong>';
+  if (q.type === 'choice' || q.type === 'circle-choice' || q.type === 'circle-shade') return '<strong style="color:#FF8C42;font-size:1.4rem;">' + q.answer + '</strong>';
+  return '';
+}
+
+function retryQuestion() {
+  // user explicitly wants to retry now (after first wrong)
+  hideFeedback();
+  state.answered = false;
+  document.getElementById('retryBtn').style.display = 'none';
+  // keep current selection empty; user re-answers
+}
+
+function nextQuestion() {
+  if (!state.locked) return;
+  if (state.current < questions.length - 1) {
+    state.current++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  // Only allow going back to questions already answered (locked)
+  if (state.current > 0) {
+    // find previous locked question
+    let prev = state.current - 1;
+    // we allow viewing but the question is locked (can't re-answer). For simplicity, allow viewing previous.
+    state.current = prev;
+    renderQuestionLocked();
+  }
+}
+
+function renderQuestionLocked() {
+  // render previous question but locked (can only view, then come back)
+  renderQuestion();
+  // immediately lock it since already answered
+  state.locked = true;
+  state.answered = true;
+  const q = questions[state.current];
+  // show previous feedback again briefly
+  const outcome = state.correctFirstTry[state.current];
+  if (outcome === 'ok' || outcome === 'retry') {
+    showFeedback('correct', '<em>(Soal sudah dijawab benar.)</em><br><strong>Penjelasan:</strong> ' + q.explanation);
+  } else if (outcome === 'help') {
+    showFeedback('wrong', '<em>(Soal sudah dijawab — jawaban benar:)</em><br>' + revealAnswer(q) + '<br><br><strong>Penjelasan:</strong> ' + q.explanation);
+  }
+  document.getElementById('nextBtn').disabled = false;
+}
+
+/* ===================== RESULTS ===================== */
+function showResults() {
+  let okCount = state.correctFirstTry.filter(x => x === 'ok').length;
+  let retryCount = state.correctFirstTry.filter(x => x === 'retry').length;
+  let helpCount = state.correctFirstTry.filter(x => x === 'help').length;
+  let totalCorrect = okCount + retryCount;
+  let pct = Math.round((totalCorrect / questions.length) * 100);
+
+  document.getElementById('resultsScore').textContent = 'Skor: ' + totalCorrect + ' / ' + questions.length + '  (' + pct + '%)';
+  let stars = '';
+  let starCount = 3;
+  if (pct >= 90) starCount = 5;
+  else if (pct >= 75) starCount = 4;
+  else if (pct >= 50) starCount = 3;
+  else if (pct >= 25) starCount = 2;
+  else starCount = 1;
+  for (let i = 0; i < 5; i++) stars += i < starCount ? '⭐' : '☆';
+  document.getElementById('resultsStars').textContent = stars;
+
+  let emoji = '🎉', msg = '';
+  if (pct >= 90) { emoji = '🏆'; msg = 'Luar biasa, ' + state.studentName + '! Kamu jagoan pecahan! Terus pertahankan ya!'; }
+  else if (pct >= 75) { emoji = '🌟'; msg = 'Bagus banget, ' + state.studentName + '! Sedikit lagi menuju sempurna. Tetap semangat!'; }
+  else if (pct >= 50) { emoji = '😊'; msg = 'Bagus, ' + state.studentName + '! Kamu sudah paham dasarnya. Yuk latihan lagi agar makin pintar!'; }
+  else { emoji = '💪'; msg = 'Tetap semangat, ' + state.studentName + '! Pecahan butuh latihan. Kerjakan ulang dan kamu pasti makin paham!'; }
+  document.getElementById('resultsEmoji').textContent = emoji;
+  document.getElementById('resultsMsg').textContent = msg;
+
+  // table
+  let tbl = '<thead><tr><th>No</th><th>Soal (singkat)</th><th>Hasil</th></tr></thead><tbody>';
+  questions.forEach((q, i) => {
+    const oc = state.correctFirstTry[i];
+    let cls = 'help', txt = '🔧 Dibantu';
+    if (oc === 'ok') { cls = 'ok'; txt = '✅ Benar (langsung)'; }
+    else if (oc === 'retry') { cls = 'retry'; txt = '🟡 Benar (setelah ulang)'; }
+    const short = q.prompt.replace(/<[^>]+>/g,'').slice(0, 50) + '...';
+    tbl += '<tr><td>' + (i+1) + '</td><td style="text-align:left;">' + short + '</td><td class="' + cls + '">' + txt + '</td></tr>';
+  });
+  tbl += '</tbody>';
+  document.getElementById('resultsTable').innerHTML = tbl;
+
+  showScreen('resultsScreen');
+  if (pct >= 75) burstConfetti();
+  setTimeout(() => { if (pct >= 75) burstConfetti(); }, 800);
+}
+
+function restartQuiz() {
+  state.current = 0;
+  state.correctFirstTry = [];
+  state.orderState = {};
+  state.shadeState = {};
+  showScreen('quizScreen');
+  renderQuestion();
+}
+</script>
+</body>
+</html>
